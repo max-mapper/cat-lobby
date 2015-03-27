@@ -1,7 +1,7 @@
 {
   "name": "cat-lobby",
   "version": "1.0.0",
-  "description": "simple lobby server for e.g. chat",
+  "description": "simple http+sse based lobby server with cat themed room names",
   "main": "index.js",
   "bin": {
     "cat-lobby": "cli.js"
