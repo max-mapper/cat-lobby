@@ -1,0 +1,22 @@
+{
+  "name": "cat-lobby",
+  "version": "1.0.0",
+  "description": "simple lobby server for e.g. chat",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cat-names": "^1.0.2",
+    "concat-stream": "^1.4.7",
+    "http-hash-router": "^1.1.0",
+    "pumpify": "^1.3.3",
+    "through2": "^0.6.3"
+  },
+  "author": "max ogden",
+  "license": "BSD",
+  "devDependencies": {
+    "standard": "^3.3.0"
+  }
+}
