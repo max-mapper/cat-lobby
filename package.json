@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "standard",
-    "start": "node index.js"
+    "start": "node cli.js"
   },
   "dependencies": {
     "cat-names": "^1.0.2",
