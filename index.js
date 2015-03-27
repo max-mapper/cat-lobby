@@ -6,6 +6,7 @@ var concat = require('concat-stream')
 var pumpify = require('pumpify')
 var ssejson = require('ssejson')
 var duplex = require('duplexify')
+var debug = require('debug')('cat-lobby')
 
 var limitStream = require('./limit-stream.js')
 
@@ -27,8 +28,9 @@ module.exports = function create (lobbyOpts) {
   
     var uploader = uploadStream(function uploaded (buff) {
       var ping = makeName()
+      debug('ping upload', {length: buff.length, name: ping})
       pings[ping] = buff
-      pongs[ping] = ssejson.serialize()
+      pongs[ping] = ssejson.serialize({})
       var tId = setTimeout(function expire () {
         delete pings[ping]
         delete pongs[ping]
@@ -38,9 +40,8 @@ module.exports = function create (lobbyOpts) {
       res.end(JSON.stringify({name: ping}))
     })
   
-    uploader.on('error', cb)
 
-    pumpify(req, uploader)
+    pumpify(req, uploader).on('error', cb)
   })
 
   router.set('/pong/:name', function ping (req, res, opts, cb) {
@@ -59,15 +60,14 @@ module.exports = function create (lobbyOpts) {
     }
   
     var uploader = uploadStream(function uploaded (buff) {
+      debug('pong upload', {length: buff.length, name: pong})
       pongs[pong].write(buff.toString())
       pongs[pong].end()
       res.setHeader('content-type', 'application/json')
       res.end()
     })
   
-    uploader.on('error', cb)
-
-    pumpify(req, uploader)
+    pumpify(req, uploader).on('error', cb)
   })
 
   router.set('/ping/:name', function room (req, res, opts, cb) {
@@ -77,6 +77,7 @@ module.exports = function create (lobbyOpts) {
       err.statusCode = 404
       return cb(err)
     }
+    debug('ping get', {name: opts.params.name})
     res.end(ping)
     cb()
   })
@@ -91,7 +92,8 @@ module.exports = function create (lobbyOpts) {
     res.setHeader('content-type', 'text/event-stream')
     var readable = duplex()
     readable.setReadable(pong)
-    pumpify(readable, res)
+    pumpify(readable, res).on('error', cb)
+    debug('pong subscribe', {name: opts.params.name})
   })
 
   var server = http.createServer(function handler (req, res) {
@@ -99,6 +101,7 @@ module.exports = function create (lobbyOpts) {
 
     function onError (err) {
       if (err) {
+        debug('error', {path: req.url, message: err.message})
         res.statusCode = err.statusCode || 500
         res.end(err.message)
       }
