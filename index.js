@@ -6,6 +6,7 @@ var concat = require('concat-stream')
 var pumpify = require('pumpify')
 var ssejson = require('ssejson')
 var duplex = require('duplexify')
+var corsify = require('corsify')
 var debug = require('debug')('cat-lobby')
 
 var limitStream = require('./limit-stream.js')
@@ -96,7 +97,13 @@ module.exports = function create (lobbyOpts) {
     debug('pong subscribe', {name: opts.params.name})
   })
 
-  var server = http.createServer(function handler (req, res) {
+  var cors = corsify({
+    "Access-Control-Allow-Methods": "POST, GET"
+  })
+  
+  var server = http.createServer(corsify(handler))
+  
+  function handler (req, res) {
     router(req, res, {}, onError)
 
     function onError (err) {
@@ -106,7 +113,7 @@ module.exports = function create (lobbyOpts) {
         res.end(err.message)
       }
     }
-  })
+  }
 
   server.on('close', function closed () {
     // to prevent process from hanging open
