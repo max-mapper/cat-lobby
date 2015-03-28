@@ -79,6 +79,7 @@ module.exports = function create (lobbyOpts) {
       return cb(err)
     }
     debug('ping get', {name: opts.params.name})
+    pongs[ping].write({pingAccessed: true})
     res.end(ping)
     cb()
   })
