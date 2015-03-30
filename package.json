@@ -7,7 +7,7 @@
     "cat-lobby": "cli.js"
   },
   "scripts": {
-    "test": "standard",
+    "test": "standard && node test.js",
     "start": "DEBUG=* node cli.js"
   },
   "dependencies": {

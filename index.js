@@ -25,23 +25,26 @@ module.exports = function create (lobbyOpts) {
     rnd: rnd,
     uploadStream: uploadStream
   }
-  
-  var alphaAPI = require('./versions/alpha.js')(state, utils)
 
-  router.set('/ping', alphaAPI.upload)
-  router.set('/pong/:name', alphaAPI.pong)
-  router.set('/ping/:name', alphaAPI.ping)
-  router.set('/pongs/:name', alphaAPI.pongs)
-  
+  // old alpha API
+  router.set('/ping', deprecated)
+  router.set('/pong/:name', deprecated)
+  router.set('/ping/:name', deprecated)
+  router.set('/pongs/:name', deprecated)
+
   var v1API = require('./versions/v1.js')(state, utils)
 
-  router.set('/v1/create', v1API.create)
-  router.set('/v1/ping/:name', v1API.ping)
-  router.set('/v1/pong/:name', v1API.pong)
-  router.set('/v1/pings/:name', v1API.pings)
-  router.set('/v1/pongs/:name', v1API.pongs)
+  router.set('/v1', v1API.create)
+  router.set('/v1/:name/ping', v1API.ping)
+  router.set('/v1/:name/pong', v1API.pong)
+  router.set('/v1/:name/pings', v1API.pings)
+  router.set('/v1/:name/pongs', v1API.pongs)
 
   return createServer(router)
+
+  function deprecated (req, res, opts, cb) {
+    cb(new Error('This version of ScreenCat is unsupported, please upgrade.'))
+  }
 
   function uploadStream (cb) {
     var limiter = limitStream(1024 * 5) // 5kb max
@@ -65,29 +68,29 @@ module.exports = function create (lobbyOpts) {
 
   function createServer (router) {
     var cors = corsify({
-      "Access-Control-Allow-Methods": "POST, GET"
+      'Access-Control-Allow-Methods': 'POST, GET'
     })
 
-    var server = http.createServer(corsify(handler))
+    var server = http.createServer(cors(handler))
 
     function handler (req, res) {
       debug(req.url, 'request/response start')
-      
+
       req.on('end', function logReqEnd () {
         debug(req.url, 'request end')
       })
-      
+
       res.on('end', function logResEnd () {
         debug(req.url, 'response end')
       })
-      
+
       router(req, res, {}, onError)
 
       function onError (err) {
         if (err) {
           debug('error', {path: req.url, message: err.message})
           res.statusCode = err.statusCode || 500
-          res.end(err.message)
+          res.end(JSON.stringify({name: err.message}))
         }
       }
     }
