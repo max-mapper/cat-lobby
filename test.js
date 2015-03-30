@@ -45,12 +45,12 @@ test('ping and pong v1 API', function pingPong (t) {
           t.end()
         })
       }
-      
+
       var urls = {
         ping: 'http://localhost:5005/v1/' + n + '/ping',
         pong: 'http://localhost:5005/v1/' + n + '/pong'
       }
-      
+
       request.post({uri: urls.ping, json: {data: ping}}, function response (err, resp, buff) {
         if (err) return t.err(err)
         t.equals(resp.statusCode, 200, 'got 200 OK')
