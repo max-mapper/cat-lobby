@@ -11,18 +11,16 @@ cat-lobby
 
 ### HTTP API
 
-#### POST `/ping`
+#### POST `/`
 
-POST upload string body, receive `{name: 'new cat themed name'}` as response. upload body will get stored on server while session is around
+creates a new lobby. receives response `{name: new lobby name}`
 
-#### GET `/ping/:name`
-
-get the stored upload payload from the server for a known session name. returns raw string payload
-
+#### POST `/ping/:name`
 #### POST `/pong/:name`
 
-POST upload string body pong response to a session. upload will be streamed out to anyone listening to pongs. no response body
+POST JSON to either the ping or pong channel. upload must be JSON and will be streamed out to anyone listening to pings/pongs. no response body
 
+#### GET `/pings/:name`
 #### GET `/pongs/:name`
 
-listen to pongs using Server-Sent Events. Usually only one pong will get emitted
+listen to pings or pongs using Server-Sent Events
