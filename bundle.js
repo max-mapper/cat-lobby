@@ -5,6 +5,8 @@ var nets = require('nets')
 var url = require('url')
 
 var params = url.parse(window.location.href, true).query
+if (params.server) server = 'https://' + params.server
+
 if (params.room) {
   var room = params.room
   // listen for pongs
