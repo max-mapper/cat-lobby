@@ -1,4 +1,5 @@
-var server = "http://catlobby.maxogden.com"
+/* global EventSource */
+var server = 'http://catlobby.maxogden.com'
 
 var nets = require('nets')
 var url = require('url')
@@ -17,15 +18,17 @@ if (params.room) {
     }
     console.log('pongs onmessage', row)
   }
-  
-  setInterval(function() {
-    nets({method: "POST", url: server + '/v1/' + room + '/ping', json: {time: new Date()}}, function (err, resp, body) {
+
+  setInterval(function () {
+    nets({method: 'POST', url: server + '/v1/' + room + '/ping', json: {time: new Date()}}, function (err, resp, body) {
+      if (err) console.error(err)
       console.log('SENT PING', body)
     })
   }, 5000)
-  
+
 } else {
-  nets({method: "POST", url: server + '/v1', json: true}, function (err, resp, body) {
+  nets({method: 'POST', url: server + '/v1', json: true}, function (err, resp, body) {
+    if (err) console.error(err)
     var room = body.name
     console.log('ROOM', room)
 
@@ -41,8 +44,9 @@ if (params.room) {
       console.log('pings onmessage', row)
     }
 
-    setInterval(function() {
-      nets({method: "POST", url: server + '/v1/' + room + '/pong', json: {time: new Date()}}, function (err, resp, body) {
+    setInterval(function () {
+      nets({method: 'POST', url: server + '/v1/' + room + '/pong', json: {time: new Date()}}, function (err, resp, body) {
+        if (err) console.error(err)
         console.log('SENT PONG', body)
       })
     }, 5000)

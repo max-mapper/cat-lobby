@@ -71,10 +71,19 @@ module.exports = function create (lobbyOpts) {
       'Access-Control-Allow-Methods': 'POST, GET'
     })
 
-    var server = http.createServer(cors(handler))
+    var server = http.createServer(handler)
 
     function handler (req, res) {
       debug(req.url, 'request/response start')
+
+      // redirect https
+      if (req.headers['x-forwarded-proto'] === 'http') {
+        var httpsURL = 'https://' + req.headers.host + req.path
+        debug('https redirect', httpsURL)
+        res.writeHead(302, {'Location': httpsURL })
+        res.end()
+        return
+      }
 
       req.on('end', function logReqEnd () {
         debug(req.url, 'request end')
@@ -84,7 +93,11 @@ module.exports = function create (lobbyOpts) {
         debug(req.url, 'response end')
       })
 
-      router(req, res, {}, onError)
+      cors(route)(req, res)
+
+      function route (req, res) {
+        router(req, res, {}, onError)
+      }
 
       function onError (err) {
         if (err) {
