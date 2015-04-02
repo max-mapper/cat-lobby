@@ -78,7 +78,7 @@ module.exports = function create (lobbyOpts) {
 
       // redirect https
       if (req.headers['x-forwarded-proto'] === 'http') {
-        var httpsURL = 'https://' + req.headers.host + req.path
+        var httpsURL = 'https://' + req.headers.host + req.url
         debug('https redirect', httpsURL)
         res.writeHead(302, {'Location': httpsURL })
         res.end()
